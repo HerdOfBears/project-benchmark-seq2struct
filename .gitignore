@@ -4,3 +4,6 @@
 _build/
 auto_examples/
 gen_api/
+
+# don't track the virtual environment, as it might become big
+venv/
