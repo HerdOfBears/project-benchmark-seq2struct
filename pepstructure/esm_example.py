@@ -10,7 +10,7 @@ import sys
 
 def sequence_to_pdb_esm(sequence:str):
     model_path = "./pepstructure/esmfold_v1/"
-    if not os.path.isdir(model_path):
+    if not os.path.isdir( os.path.join(os.getcwd(),model_path) ):
         raise Exception("""Model path does not exist: {}\n
                         current directory is: {}""".format(model_path, os.getcwd())
         )
