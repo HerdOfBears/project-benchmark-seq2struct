@@ -8,6 +8,7 @@ source venv/bin/activate
 
 # check if requirements.txt file in directory
 if test -f "requirements.txt"; then
+	sed -i '/openfold/d' requirements.txt
 	echo "continuing with package installations"
 	echo "commencing pip install of requirements.txt"
 	pip install -r requirements.txt --no-index
