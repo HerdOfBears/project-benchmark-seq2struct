@@ -27,7 +27,8 @@ The project has the following structure:
       |- Makefile
       |- ipynb/
          |- ... -->
-# benchmarking structure prediction models for the prediction of peptide structure
+# benchmarking structure prediction models
+This project is concerned with benchmarking various protein structure prediction models and methods on how well they predict peptide structure. Peptides are on the order of 2 to 50 amino acid residues, and homology modelling does not work as well on them. 
 
 ### Styling
 
