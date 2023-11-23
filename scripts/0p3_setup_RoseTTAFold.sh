@@ -29,7 +29,7 @@ python3.8 -m venv venv_RoseTTAFold
 source venv_RoseTTAFold/bin/activate
 
 # install the pip requirements and use compute canada mirrors (--no-index)
-pip install -r requirements_rosettatfold.txt --no-index
+pip install -r requirements_rosettafold.txt --no-index
 
 ##########################################
 ##########################################
