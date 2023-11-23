@@ -16,7 +16,7 @@ deactivate # deactivate any existing virtual environments
 git clone https://github.com/RosettaCommons/RoseTTAFold
 
 # move the RoseTTAFold pip requirements file into the RoseTTAFold directory
-mv requirements_rosettatfold.txt RoseTTAFold/
+mv requirements_rosettafold.txt RoseTTAFold/
 
 # move into the RoseTTAFold directory
 cd RoseTTAFold 
