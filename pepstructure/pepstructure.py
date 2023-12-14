@@ -1,11 +1,23 @@
 from __future__ import absolute_import, division, print_function
-import numpy as np
-import pandas as pd
-import scipy.optimize as opt
-from scipy.special import erf
 from .due import due, Doi
 
-__all__ = ["Model", "Fit", "opt_err_func", "transform_data", "cumgauss"]
+import numpy as np
+import torch
+import pandas as pd
+import time
+import logging
+import os
+import sys
+
+
+from transformers import AutoTokenizer, EsmForProteinFolding
+
+__all__ = [
+    "get_sequences_from_fasta", 
+    "get_model_esm", 
+    "sequence_to_pdb_esm_batch", 
+    "write_pdb_outputs_"
+]
 
 
 # Use duecredit (duecredit.org) to provide a citation to relevant work to
@@ -17,194 +29,81 @@ due.cite(Doi("10.1167/13.9.30"),
          path='')
 
 
-def transform_data(data):
+def get_sequences_from_fasta(fasta_file):
     """
-    Function that takes experimental data and gives us the
-    dependent/independent variables for analysis.
+    Reads a fasta file and returns a dict of sequences
+    Assumes that information after ">" is relevant.
 
-    Parameters
-    ----------
-    data : Pandas DataFrame or string.
-        If this is a DataFrame, it should have the columns `contrast1` and
-        `answer` from which the dependent and independent variables will be
-        extracted. If this is a string, it should be the full path to a csv
-        file that contains data that can be read into a DataFrame with this
-        specification.
-
-    Returns
-    -------
-    x : array
-        The unique contrast differences.
-    y : array
-        The proportion of '2' answers in each contrast difference
-    n : array
-        The number of trials in each x,y condition
+    inputs:
+        fasta_file: path to fasta file
+    outputs:
+        starpepid_to_sequence: dict of starpep ids and their sequences 
     """
-    if isinstance(data, str):
-        data = pd.read_csv(data)
+    logging.info("Reading fasta file using readlines...")
+    with open(fasta_file, "r") as f:
+        lines = f.readlines()
+    
+    starpepid_to_sequence = {}
+    for line in lines:
+        if line.startswith(">"):
+            starpep_id = line[1:].strip()
+            starpepid_to_sequence[starpep_id] = ""
+        else:
+            starpepid_to_sequence[starpep_id] += line.strip()
+    
+    return starpepid_to_sequence
 
-    contrast1 = data['contrast1']
-    answers = data['answer']
-
-    x = np.unique(contrast1)
-    y = []
-    n = []
-
-    for c in x:
-        idx = np.where(contrast1 == c)
-        n.append(float(len(idx[0])))
-        answer1 = len(np.where(answers[idx[0]] == 1)[0])
-        y.append(answer1 / n[-1])
-    return x, y, n
-
-
-def cumgauss(x, mu, sigma):
+def get_model_esm(model_path):
     """
-    The cumulative Gaussian at x, for the distribution with mean mu and
-    standard deviation sigma.
-
-    Parameters
-    ----------
-    x : float or array
-       The values of x over which to evaluate the cumulative Gaussian function
-
-    mu : float
-       The mean parameter. Determines the x value at which the y value is 0.5
-
-    sigma : float
-       The variance parameter. Determines the slope of the curve at the point
-       of Deflection
-
-    Returns
-    -------
-
-    g : float or array
-        The cumulative gaussian with mean $\\mu$ and variance $\\sigma$
-        evaluated at all points in `x`.
-
-    Notes
-    -----
-    Based on:
-    http://en.wikipedia.org/wiki/Normal_distribution#Cumulative_distribution_function
-
-    The cumulative Gaussian function is defined as:
-
-    .. math::
-
-        \\Phi(x) = \\frac{1}{2} [1 + erf(\\frac{x}{\\sqrt{2}})]
-
-    Where, $erf$, the error function is defined as:
-
-    .. math::
-
-        erf(x) = \\frac{1}{\\sqrt{\\pi}} \\int_{-x}^{x} e^{t^2} dt
+    Loads the ESM model from the specified path
+    
+    inputs:
+        model_path: path to the model directory of parameters and tokenizer (from huggingface)
+    outputs:
+        model: ESM model
+        tokenizer: tokenizer for the model 
     """
-    return 0.5 * (1 + erf((x - mu) / (np.sqrt(2) * sigma)))
+    # model_path = "./pepstructure/esmfold_v1/"
+    if not os.path.isdir( os.path.join(os.getcwd(),model_path) ):
+        raise Exception("""Model path does not exist: {}\n
+                        current directory is: {}""".format(model_path, os.getcwd())
+        )
+    logging.info("Loading model...")
+    model = EsmForProteinFolding.from_pretrained(
+                        model_path,
+                        local_files_only=True
+    )
+    tokenizer = AutoTokenizer.from_pretrained(
+                        model_path,
+                        local_files_only=True
+    )
+    return model, tokenizer
 
+def sequence_to_pdb_esm_batch(sequences:dict[str], model):
+    logging.info("Running batch ESMFold inference...")
+    if not isinstance(sequences, list):
+        raise TypeError("sequences must be a dict[starpep_id]=sequence")
 
-def opt_err_func(params, x, y, func):
+    t0 = time.time()
+    pdb_outputs = {}
+    with torch.no_grad():
+        for starpep_id, sequence in sequences.items():
+            outputs = model.infer_pdb(sequence)
+            pdb_outputs[starpep_id] = outputs
+    tf = time.time()
+    logging.info(f"Total inference time: {tf-t0}s for {len(sequences)} sequences")
+    
+    return pdb_outputs
+
+def write_pdb_outputs_(pdb_outputs:dict[str], model_name:str, output_dir:str):
     """
-    Error function for fitting a function using non-linear optimization.
-
-    Parameters
-    ----------
-    params : tuple
-        A tuple with the parameters of `func` according to their order of
-        input
-
-    x : float array
-        An independent variable.
-
-    y : float array
-        The dependent variable.
-
-    func : function
-        A function with inputs: `(x, *params)`
-
-    Returns
-    -------
-    float array
-        The marginals of the fit to x/y given the params
+    Writes the pdb outputs to the specified output directory
+    Operates 'in-place'
     """
-    return y - func(x, *params)
+    if not os.path.isdir(output_dir):
+        raise Exception("Output directory does not exist: {}".format(output_dir))
+    
+    for starpep_id, pdb_output in pdb_outputs.items():
+        with open(os.path.join(output_dir, starpep_id+ "_" + model_name +"_prediction.pdb"), "w") as f:
+            f.write(pdb_output)
 
-
-class Model(object):
-    """Class for fitting cumulative Gaussian functions to data"""
-    def __init__(self, func=cumgauss):
-        """ Initialize a model object.
-
-        Parameters
-        ----------
-        data : Pandas DataFrame
-            Data from a subjective contrast judgement experiment
-
-        func : callable, optional
-            A function that relates x and y through a set of parameters.
-            Default: :func:`cumgauss`
-        """
-        self.func = func
-
-    def fit(self, x, y, initial=[0.5, 1]):
-        """
-        Fit a Model to data.
-
-        Parameters
-        ----------
-        x : float or array
-           The independent variable: contrast values presented in the
-           experiment
-        y : float or array
-           The dependent variable
-
-        Returns
-        -------
-        fit : :class:`Fit` instance
-            A :class:`Fit` object that contains the parameters of the model.
-
-        """
-        params, _ = opt.leastsq(opt_err_func, initial,
-                                args=(x, y, self.func))
-        return Fit(self, params)
-
-
-class Fit(object):
-    """
-    Class for representing a fit of a model to data
-    """
-    def __init__(self, model, params):
-        """
-        Initialize a :class:`Fit` object.
-
-        Parameters
-        ----------
-        model : a :class:`Model` instance
-            An object representing the model used
-
-        params : array or list
-            The parameters of the model evaluated for the data
-
-        """
-        self.model = model
-        self.params = params
-
-    def predict(self, x):
-        """
-        Predict values of the dependent variable based on values of the
-        indpendent variable.
-
-        Parameters
-        ----------
-        x : float or array
-            Values of the independent variable. Can be values presented in
-            the experiment. For out-of-sample prediction (e.g. in
-            cross-validation), these can be values
-            that were not presented in the experiment.
-
-        Returns
-        -------
-        y : float or array
-            Predicted values of the dependent variable, corresponding to
-            values of the independent variable.
-        """
-        return self.model.func(x, *self.params)
