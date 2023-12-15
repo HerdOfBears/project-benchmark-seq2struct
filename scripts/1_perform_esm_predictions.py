@@ -14,7 +14,7 @@ def main():
     #################
     # Read fasta file
     #################
-    starpepid_to_sequence = pepstructure.read_fasta(input_fasta)
+    starpepid_to_sequence = pepstructure.get_sequences_from_fasta(input_fasta)
 
     #################
     # Load model
@@ -29,7 +29,7 @@ def main():
     #################
     # Write outputs
     #################
-    pepstructure.write_pdb_outputs(pdb_outputs, "esmfold", output_dir)
+    pepstructure.write_pdb_outputs_(pdb_outputs, "esmfold", output_dir)
     
 
 
