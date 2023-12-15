@@ -3,7 +3,6 @@ from .due import due, Doi
 
 import numpy as np
 import torch
-import pandas as pd
 import time
 import logging
 import os
