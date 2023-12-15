@@ -3,6 +3,7 @@
 #SBATCH --account=ctb-rmansbac
 #SBATCH --time=05:30:00
 #SBATCH --nodes=1
+#SBATCH --mem=32G
 
 # load modules/venv
 source venv/bin/activate
