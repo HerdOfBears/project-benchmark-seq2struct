@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=ESMFold_batch
 #SBATCH --account=ctb-rmansbac
-#SBATCH --time=05:30:00
+#SBATCH --time=25:30:00
 #SBATCH --nodes=1
 #SBATCH --mem=32G
 
