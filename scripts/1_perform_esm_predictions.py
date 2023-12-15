@@ -42,4 +42,5 @@ if __name__ == '__main__':
             datefmt='%H:%M:%S',
             level=logging.INFO
     )
+    logging.info("==================== new run ====================")
     main()
