@@ -90,9 +90,11 @@ def sequence_to_pdb_esm_batch(sequences:dict[str], model):
     t0 = t00
     with torch.no_grad():
         for starpep_id, sequence in sequences.items():
+            count += 1
             if count % 50 ==0:
                 logging.info(f"Processed {count} sequences of {total}. Time per 50 = {time.time()-t0}s")
                 t0 = time.time()
+                
             outputs = model.infer_pdb(sequence)
             pdb_outputs[starpep_id] = outputs
     tf = time.time()
