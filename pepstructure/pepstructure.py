@@ -83,14 +83,20 @@ def sequence_to_pdb_esm_batch(sequences:dict[str], model):
     if not isinstance(sequences, dict):
         raise TypeError("sequences must be a dict[starpep_id]=sequence")
 
-    t0 = time.time()
     pdb_outputs = {}
+    count = 0
+    total = len(sequences)
+    t00 = time.time()
+    t0 = t00
     with torch.no_grad():
         for starpep_id, sequence in sequences.items():
+            if count % 50 ==0:
+                logging.info(f"Processed {count} sequences of {total}. Time per 50 = {time.time()-t0}s")
+                t0 = time.time()
             outputs = model.infer_pdb(sequence)
             pdb_outputs[starpep_id] = outputs
     tf = time.time()
-    logging.info(f"Total inference time: {tf-t0}s for {len(sequences)} sequences")
+    logging.info(f"Total inference time: {tf-t00}s for {len(sequences)} sequences")
     
     return pdb_outputs
 
