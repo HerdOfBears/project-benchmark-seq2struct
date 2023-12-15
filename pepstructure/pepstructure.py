@@ -80,7 +80,7 @@ def get_model_esm(model_path):
 
 def sequence_to_pdb_esm_batch(sequences:dict[str], model):
     logging.info("Running batch ESMFold inference...")
-    if not isinstance(sequences, list):
+    if not isinstance(sequences, dict):
         raise TypeError("sequences must be a dict[starpep_id]=sequence")
 
     t0 = time.time()
