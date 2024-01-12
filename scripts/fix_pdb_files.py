@@ -44,8 +44,9 @@ def main(pdb_dir):
     counter = 0
     t0 = time.time()
     for pdb_file in pdb_files:
+        pdb_fpath = pdb_dir + "/" + pdb_file
         output_file = pdb_dir + "/" + pdb_file.replace('.pdb', output_suffix)
-        fix_pdb(pdb_file, output_file)
+        fix_pdb(pdb_fpath, output_file)
         counter += 1
         if counter % 100 == 0:
             logging.info(f'Fixed {counter} pdb files in {time.time() - t0} seconds.')
