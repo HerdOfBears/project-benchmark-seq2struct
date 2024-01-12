@@ -59,7 +59,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
     pdb_dir = args.pdb_dir
 
-    log_name = f"logs/fix_pdb_{pdb_dir.split('/')[-1]}.log"
+    model_name = pdb_dir.split('/')[-1]
+    if model_name == "":
+        model_name = pdb_dir.split('/')[-2]
+    log_name = f"logs/fix_pdb_{model_name}.log"
     logging.basicConfig(filename=log_name, level=logging.INFO)
 
     main(pdb_dir)
