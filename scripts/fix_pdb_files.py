@@ -61,4 +61,4 @@ if __name__ == '__main__':
     log_name = f"logs/fix_pdb_{pdb_dir.split('/')[-1]}.log"
     logging.basicConfig(filename=log_name, level=logging.INFO)
 
-    main()
+    main(pdb_dir)
