@@ -19,8 +19,10 @@ def run_simulation(pdb):
     coordinates_output_file = 'output.pdb'
     state_output_file = 'state.csv'
 
-    total_simulation_time = 10*nanoseconds
+    total_simulation_time = 1*nanoseconds
     total_n_steps = int(total_simulation_time / (step_size*picoseconds))+1
+    logging.info(f"total_simulation_time = {total_simulation_time}")
+    logging.info(f"total_n_steps = {total_n_steps}")
 
     ##############
     # specify forcefield
@@ -95,15 +97,20 @@ if __name__=="__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--pdb_file', type=str, required=True, help='PDB file to simulate.')
+    parser.add_argument('--pdb_dir',  type=str, required=True, help='directory containing pdb file(s).')
 
     args = parser.parse_args()
     pdb_file = args.pdb_file
+    pdb_dir  = args.pdb_dir
 
     logging.basicConfig(
         out="logs/test_simulate_protein_in_water.log", 
         level=logging.INFO
     )
-    pdb_fpath = "outputs" + "/" + pdb_file.split("/")[-1]
+    if pdb_dir[-1] == "/":
+        pdb_dir = pdb_dir[:-1]
+    pdb_fpath = pdb_dir + "/" + pdb_file.split("/")[-1]
+    
     # pdb = PDBFile("starPep_06810_test_pdbfixer.pdb")
     pdb = PDBFile(pdb_fpath)
 
