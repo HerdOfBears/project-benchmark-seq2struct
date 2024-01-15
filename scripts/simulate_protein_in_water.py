@@ -104,7 +104,10 @@ if __name__=="__main__":
     pdb_dir  = args.pdb_dir
 
     logging.basicConfig(
-        out="logs/test_simulate_protein_in_water.log", 
+        filename="logs/test_simulate_protein_in_water.log",
+        filemode='a',
+        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+        datefmt='%H:%M:%S',
         level=logging.INFO
     )
     if pdb_dir[-1] == "/":
