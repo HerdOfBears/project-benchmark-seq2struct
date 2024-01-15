@@ -117,7 +117,7 @@ if __name__=="__main__":
     # pdb = PDBFile("starPep_06810_test_pdbfixer.pdb")
     pdb = PDBFile(pdb_fpath)
 
-    logging.info(f"num residues in pdb = {len(pdb.topology.residues())}")
+    logging.info(f"num residues in pdb = {pdb.topology.getNumResidues()}")
 
     logging.info(f"Running simulation on {pdb_file}")
     t0 = time.time()
