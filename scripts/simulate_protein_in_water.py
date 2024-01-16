@@ -5,22 +5,40 @@ from pdbfixer import PDBFixer
 from sys import stdout
 
 import time
+import os
 import logging
 import argparse
 
-def run_simulation(pdb):
+def run_simulation(pdb, params=None):
     """
     requires a PDBFile object
     """
+    total_simulation_time = 1*nanoseconds # production run time
+    total_equilibriation_time = 100*picoseconds # equilibriation run time
     temperature = 300 # kelvin
-    step_size = 0.004 # of a picosecond
-    report_every = 1000 # every X steps
+    step_size = 0.002 # of a picosecond
 
+    report_every = 1000 # every X steps
     coordinates_output_file = 'output.pdb'
     state_output_file = 'state.csv'
 
-    total_simulation_time = 1*nanoseconds
+    if params is not None:
+        # total_simulation_time     = params['total_simulation_time']
+        # total_equilibriation_time = params['total_equilibriation_time']
+        # temperature  = params['temperature']
+        # step_size    = params['step_size']
+        # report_every = params['report_every']
+
+        coordinates_output_file = params['coordinates_output_file']
+        state_output_file       = params['state_output_file']
+
+    using_pbc = False # use periodic boundary conditions
+    restrain_backbone = True # restrain the backbone during NVT and NPT equilibration, but not during production
+
+    total_n_equilibriation_steps = int(total_equilibriation_time / (step_size*picoseconds) ) # 100 ps
     total_n_steps = int(total_simulation_time / (step_size*picoseconds))+1
+    logging.info(f"total equilibriation time (NVT+NPT)    = {total_equilibriation_time*2}")
+    logging.info(f"total_n_equilibriation_steps (NVT+NPT) = {total_n_equilibriation_steps*2}")
     logging.info(f"total_simulation_time = {total_simulation_time}")
     logging.info(f"total_n_steps = {total_n_steps}")
 
@@ -63,6 +81,7 @@ def run_simulation(pdb):
     ##############
     # local energy minimization
     ############## 
+    logging.info("Minimizing energy...")
     t0 = time.time()
     simulation.minimizeEnergy()
     logging.info(f"Minimized energy in {round(time.time() - t0, 4)}s")
@@ -88,10 +107,55 @@ def run_simulation(pdb):
     )
 
     ##############
-    # run (NVT) simulation
+    # Restrain protein backbone
     ##############
+    if restrain_backbone:
+        logging.info("Restrain protein backbone...")
+        if using_pbc:
+            restraint = CustomExternalForce('k*periodicdistance(x, y, z, x0, y0, z0)^2')
+        else:
+            restraint = CustomExternalForce('k*((x-x0)^2+(y-y0)^2+(z-z0)^2)')
+        restraint_force_system_idx = system.addForce(restraint)
+        restraint.addGlobalParameter('k', 100.0*kilojoules_per_mole/nanometer)
+        restraint.addPerParticleParameter('x0')
+        restraint.addPerParticleParameter('y0')
+        restraint.addPerParticleParameter('z0')
+
+        # restrain all Calpha atoms
+        for atom in pdb.topology.atoms():
+            if atom.name == 'CA':
+                restraint.addParticle(atom.index, pdb.positions[atom.index])
+
+
+    ##############
+    # run NVT equilibriation
+    ##############
+    logging.info(f"Running NVT equilibriation for {total_n_equilibriation_steps} steps...")
+    simulation.step(total_n_equilibriation_steps)
+    
+    ##############
+    # run NPT equilibriation
+    ##############
+    logging.info(f"Running NPT equilibriation for {total_n_equilibriation_steps} steps...")
+    system.addForce(
+        MonteCarloBarostat(1*bar, temperature*kelvin)
+    )
+    simulation.context.reinitialize(preserveState=True)
+
+    simulation.step(total_n_equilibriation_steps)
+
+    ##############
+    # remove restraint if there is one
+    ##############
+    if restrain_backbone:
+        logging.info("Removing backbone restraint...")
+        system.removeForce(restraint_force_system_idx)
+    
+    ##############
+    # run production
+    ##############
+    logging.info(f"Running production for {total_n_steps} steps...")
     simulation.step(total_n_steps)
-        
 
 if __name__=="__main__":
 
@@ -110,6 +174,8 @@ if __name__=="__main__":
         datefmt='%H:%M:%S',
         level=logging.INFO
     )
+    logging.info(f"n CPU cores = {os.cpu_count()}")
+    
     if pdb_dir[-1] == "/":
         pdb_dir = pdb_dir[:-1]
     pdb_fpath = pdb_dir + "/" + pdb_file.split("/")[-1]
@@ -117,8 +183,16 @@ if __name__=="__main__":
     # pdb = PDBFile("starPep_06810_test_pdbfixer.pdb")
     pdb = PDBFile(pdb_fpath)
 
+    logging.info(f"using pdb file: {pdb_file}")
     logging.info(f"num residues in pdb = {pdb.topology.getNumResidues()}")
+    
+    params = {}
+    params["coordinates_output_file"] = "outputs/coordinates.pdb" 
+    params["state_output_file"]       = "outputs/state.csv"
 
+    ##############################
+    # setup and run simulation
+    ##############################
     logging.info(f"Running simulation on {pdb_file}")
     t0 = time.time()
     run_simulation(pdb)
