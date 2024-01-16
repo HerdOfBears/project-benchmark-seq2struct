@@ -195,5 +195,5 @@ if __name__=="__main__":
     ##############################
     logging.info(f"Running simulation on {pdb_file}")
     t0 = time.time()
-    run_simulation(pdb)
+    run_simulation(pdb, params=params)
     logging.info(f"Simulation took {round(time.time() - t0, 4)}s")
