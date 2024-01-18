@@ -18,6 +18,8 @@ def align_pdb_files(file1, file2):
     pdb1 = pymol.cmd.load(file1)
     pdb2 = pymol.cmd.load(file2)
 
+    allobjects = pymol.cmd.get_object_list('all')
+    print(f"allobjects = {allobjects}")
     # pymol's align returns a list of 7 items:
     # 0: RMSD
     # 1: number of aligned atoms
