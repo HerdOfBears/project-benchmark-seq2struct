@@ -28,10 +28,11 @@ def align_pdb_files(file1, file2):
     # 5: raw alignment score
     # 6: number of residues aligned
     alignment = pymol.cmd.align(allobjects[0], allobjects[1]) 
-    rmsd            = alignment[0]
-    n_aligned_atoms = alignment[1]
+    rmsd                = alignment[0]
+    raw_alignment_score = alignment[5]
+    n_aligned_residues  = alignment[6]
     
-    return rmsd, n_aligned_atoms
+    return rmsd, n_aligned_residues, raw_alignment_score
 
 def get_dssp_from_pdb_file(file):
     """
@@ -48,19 +49,25 @@ def get_dssp_from_pdb_file(file):
     structure = p.get_structure("", file)
     model = structure[0]
     dssp = bPDB.DSSP(model, file, dssp="mkdssp")
-    return dssp
+
+    keys = list(dssp.keys())
+    second_structs = []
+    for key in keys:
+        second_structs.append( dssp[key][2] )
+    return second_structs
 
 if __name__ == "__main__":
     file1 = "outputs/esmfold/starPep_44878_esmfold_prediction.pdb"
     file2 = "outputs/omegafold/starPep_44878_omegafold_prediction.pdb"
     
-    rmsd, n_aligned_atoms = align_pdb_files(file1, file2)
+    rmsd, n_aligned_residues, raw_alignment_score = align_pdb_files(file1, file2)
     print(f"rmsd = {rmsd}")
-    print(f"n_aligned_atoms = {n_aligned_atoms}")
+    print(f"n_aligned_residues = {n_aligned_residues}")
+    print(f"raw_alignment_score = {raw_alignment_score}")
 
     dssp1 = get_dssp_from_pdb_file(file1)
     dssp2 = get_dssp_from_pdb_file(file2)
-    print(f"dssp1 = {dssp1.keys()}")
-    print(f"dssp2 = {dssp2.keys()}")
+    print(f"dssp1 = {dssp1}")
+    print(f"dssp2 = {dssp2}")
 
     print("file has no default behavior")
