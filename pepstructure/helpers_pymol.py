@@ -50,4 +50,16 @@ def get_dssp_from_pdb_file(file):
     return dssp
 
 if __name__ == "__main__":
+    file1 = "outputs/esmfold/starPep_44878_esmfold_prediction.pdb"
+    file2 = "outputs/omegafold/starPep_44878_omegafold_prediction.pdb"
+    
+    rmsd, n_aligned_atoms = align_pdb_files(file1, file2)
+    print(f"rmsd = {rmsd}")
+    print(f"n_aligned_atoms = {n_aligned_atoms}")
+
+    dssp1 = get_dssp_from_pdb_file(file1)
+    dssp2 = get_dssp_from_pdb_file(file2)
+    print(f"dssp1 = {dssp1}")
+    print(f"dssp2 = {dssp2}")
+
     print("file has no default behavior")
