@@ -27,7 +27,7 @@ def align_pdb_files(file1, file2):
     # 4: Number of aligned atoms before refinement
     # 5: raw alignment score
     # 6: number of residues aligned
-    alignment = pymol.cmd.align(allobjects[0], allobjects[1]) 
+    alignment = pymol.cmd.align(allobjects[0], allobjects[1], n_cycles=5) 
     rmsd                = alignment[0]
     raw_alignment_score = alignment[5]
     n_aligned_residues  = alignment[6]
@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
     dssp1 = get_dssp_from_pdb_file(file1)
     dssp2 = get_dssp_from_pdb_file(file2)
-    print(f"dssp1 = {dssp1}")
-    print(f"dssp2 = {dssp2}")
+    print(f"dssp1 = {''.join(dssp1)}")
+    print(f"dssp2 = {''.join(dssp2)}")
 
     print("file has no default behavior")
