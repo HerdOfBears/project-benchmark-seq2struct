@@ -22,7 +22,7 @@ def align_pdb_files(file1, file2):
     # pymol's align returns a list of 7 items:
     # 0: RMSD
     # 1: number of aligned atoms
-    # 2: number of refinement ccles
+    # 2: number of refinement cycles
     # 3: RMSD before refinement
     # 4: Number of aligned atoms before refinement
     # 5: raw alignment score
@@ -34,9 +34,14 @@ def align_pdb_files(file1, file2):
     
     return rmsd, n_aligned_residues, raw_alignment_score
 
-def get_dssp_from_pdb_file(file):
+def get_second_structure_from_pdb_file(file):
     """
-    takes a pdb file and returns a dssp object
+    takes a pdb file and returns the DSSP secondary structure of the pdb file
+
+    inputs:
+        file: path to a pdb file
+    outputs:
+        second_structs: str  secondary structure elements
     """
     if not os.path.exists(file):
         raise FileNotFoundError(f"{file} does not exist")
@@ -54,7 +59,7 @@ def get_dssp_from_pdb_file(file):
     second_structs = []
     for key in keys:
         second_structs.append( dssp[key][2] )
-    return second_structs
+    return "".join(second_structs)
 
 if __name__ == "__main__":
     file1 = "outputs/esmfold/starPep_44878_esmfold_prediction.pdb"
@@ -65,9 +70,9 @@ if __name__ == "__main__":
     print(f"n_aligned_residues = {n_aligned_residues}")
     print(f"raw_alignment_score = {raw_alignment_score}")
 
-    dssp1 = get_dssp_from_pdb_file(file1)
-    dssp2 = get_dssp_from_pdb_file(file2)
-    print(f"dssp1 = {''.join(dssp1)}")
-    print(f"dssp2 = {''.join(dssp2)}")
+    dssp1 = get_second_structure_from_pdb_file(file1)
+    dssp2 = get_second_structure_from_pdb_file(file2)
+    print(f"dssp1 = {dssp1}")
+    print(f"dssp2 = {dssp2}")
 
     print("file has no default behavior")
