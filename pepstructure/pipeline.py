@@ -33,6 +33,8 @@ def compute_rmsd_of_model_outputs(model1, model2):
     data = {}
     data["starpep_id"] = []
     data[f"{model1}_compared_to_{model2}_rmsd"] = []
+    data[f"{model1}_compared_to_{model2}_n_aligned_residues"] = []
+    data[f"{model1}_compared_to_{model2}_raw_alignment_score"] = []
     data[f"{model1}_compared_to_{model2}_secondary_structure_mismatches"] = []
     t0 = time.time()
     for starpep_id in starpep_ids:
