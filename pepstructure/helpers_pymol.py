@@ -18,7 +18,9 @@ def align_pdb_files(file1, file2):
     pdb1 = pymol.cmd.load(file1)
     pdb2 = pymol.cmd.load(file2)
 
-    allobjects = pymol.cmd.get_object_list('all')
+    # allobjects = pymol.cmd.get_object_list('all')
+    obj_name1 = file1.split("/")[-1].split(".")[0]
+    obj_name2 = file2.split("/")[-1].split(".")[0]
     # pymol's align returns a list of 7 items:
     # 0: RMSD
     # 1: number of aligned atoms
@@ -27,7 +29,7 @@ def align_pdb_files(file1, file2):
     # 4: Number of aligned atoms before refinement
     # 5: raw alignment score
     # 6: number of residues aligned
-    alignment = pymol.cmd.align(allobjects[0], allobjects[1], cycles=5) 
+    alignment = pymol.cmd.align(obj_name1, obj_name2, cycles=5) 
     rmsd                = alignment[0]
     raw_alignment_score = alignment[5]
     n_aligned_residues  = alignment[6]
