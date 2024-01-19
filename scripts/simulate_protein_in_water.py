@@ -9,6 +9,7 @@ import os
 import logging
 import argparse
 import datetime
+import sys
 
 def run_simulation(pdb, params=None):
     """
@@ -179,7 +180,7 @@ if __name__=="__main__":
     )
     logging.info(f"n CPU cores = {os.cpu_count()}")
     logging.info(f"platform = {Platform.getName()}")
-    break
+    sys.exit()
     if pdb_dir[-1] == "/":
         pdb_dir = pdb_dir[:-1]
     pdb_fpath = pdb_dir + "/" + pdb_file.split("/")[-1]
