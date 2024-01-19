@@ -8,6 +8,7 @@ import time
 import os
 import logging
 import argparse
+import datetime
 
 def run_simulation(pdb, params=None):
     """
@@ -167,15 +168,18 @@ if __name__=="__main__":
     pdb_file = args.pdb_file
     pdb_dir  = args.pdb_dir
 
+    today = datetime.datetime.now()
+    logfilename = f"{str(today.date())}_sim_protein_in_water.log"
     logging.basicConfig(
-        filename="logs/test_simulate_protein_in_water.log",
+        filename="logs/"+logfilename,
         filemode='a',
         format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
         datefmt='%H:%M:%S',
         level=logging.INFO
     )
     logging.info(f"n CPU cores = {os.cpu_count()}")
-    
+    logging.info(f"platform = {Platform.getName()}")
+    break
     if pdb_dir[-1] == "/":
         pdb_dir = pdb_dir[:-1]
     pdb_fpath = pdb_dir + "/" + pdb_file.split("/")[-1]
