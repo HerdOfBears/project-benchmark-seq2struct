@@ -1,5 +1,5 @@
 
-from .helpers_pymol import align_pdb_files, get_second_structure_from_pdb_file
+from helpers_pymol import align_pdb_files, get_second_structure_from_pdb_file
 
 import os
 import sys
