@@ -164,13 +164,24 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--pdb_file', type=str, required=True, help='PDB file to simulate.')
     parser.add_argument('--pdb_dir',  type=str, required=True, help='directory containing pdb file(s).')
+    parser.add_argument("--prefix",   default="", type=str, required=False, help="prefix for output files")
+    parser.add_argument("--device",   default="cpu", type=str,choices=["cpu","cuda"], required=False, help="device to run on")
+    parser.add_argument("--slurm_id", default="", type=str, required=False, help="slurm id (for logging)")
 
     args = parser.parse_args()
     pdb_file = args.pdb_file
     pdb_dir  = args.pdb_dir
+    prefix   = args.prefix
+    slurm_id = args.slurm_id
+    device   = args.device
+    device   = device.upper()
+    if prefix != "":
+        prefix += "_"
+    if slurm_id != "":
+        slurm_id += "_"
 
     today = datetime.datetime.now()
-    logfilename = f"{str(today.date())}_sim_protein_in_water.log"
+    logfilename = f"{slurm_id}{prefix}sim_protein_in_water.log"
     logging.basicConfig(
         filename="logs/"+logfilename,
         filemode='a',
@@ -178,9 +189,9 @@ if __name__=="__main__":
         datefmt='%H:%M:%S',
         level=logging.INFO
     )
+    logging.info(f"Job ID was {slurm_id}")
     logging.info(f"n CPU cores = {os.cpu_count()}")
-    logging.info(f"platform = {Platform.getName()}")
-    sys.exit()
+    
     if pdb_dir[-1] == "/":
         pdb_dir = pdb_dir[:-1]
     pdb_fpath = pdb_dir + "/" + pdb_file.split("/")[-1]
@@ -192,8 +203,8 @@ if __name__=="__main__":
     logging.info(f"num residues in pdb = {pdb.topology.getNumResidues()}")
     
     params = {}
-    params["coordinates_output_file"] = "outputs/coordinates.pdb" 
-    params["state_output_file"]       = "outputs/state.csv"
+    params["coordinates_output_file"] = f"outputs/{slurm_id}{prefix}coordinates.pdb" 
+    params["state_output_file"]       = f"outputs/{slurm_id}{prefix}state.csv"
 
     ##############################
     # setup and run simulation
