@@ -164,17 +164,19 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--pdb_file', type=str, required=True, help='PDB file to simulate.')
     parser.add_argument('--pdb_dir',  type=str, required=True, help='directory containing pdb file(s).')
-    parser.add_argument("--prefix",   default="", type=str, required=False, help="prefix for output files")
-    parser.add_argument("--device",   default="cpu", type=str,choices=["cpu","cuda"], required=False, help="device to run on")
-    parser.add_argument("--slurm_id", default="", type=str, required=False, help="slurm id (for logging)")
+    parser.add_argument("--output_dir", default="outputs", type=str, required=False, help="output directory")
+    parser.add_argument("--prefix",     default="", type=str, required=False, help="prefix for output files")
+    parser.add_argument("--device",     default="cpu", type=str,choices=["cpu","cuda"], required=False, help="device to run on")
+    parser.add_argument("--slurm_id",   default="", type=str, required=False, help="slurm id (for logging)")
 
     args = parser.parse_args()
-    pdb_file = args.pdb_file
-    pdb_dir  = args.pdb_dir
-    prefix   = args.prefix
-    slurm_id = args.slurm_id
-    device   = args.device
-    device   = device.upper()
+    pdb_file    = args.pdb_file
+    pdb_dir     = args.pdb_dir
+    output_dir  = args.output_dir
+    prefix      = args.prefix
+    slurm_id    = args.slurm_id
+    device      = args.device
+    device      = device.upper()
     if prefix != "":
         prefix += "_"
     if slurm_id != "":
@@ -195,16 +197,21 @@ if __name__=="__main__":
     if pdb_dir[-1] == "/":
         pdb_dir = pdb_dir[:-1]
     pdb_fpath = pdb_dir + "/" + pdb_file.split("/")[-1]
+
+    if output_dir[-1] != "/":
+        output_dir += "/"
+    if not os.path.exists(output_dir):
+        raise Exception(f"output directory {output_dir} does not exist")
+    logging.info(f"output directory = {output_dir}")
     
-    # pdb = PDBFile("starPep_06810_test_pdbfixer.pdb")
     pdb = PDBFile(pdb_fpath)
 
     logging.info(f"using pdb file: {pdb_file}")
     logging.info(f"num residues in pdb = {pdb.topology.getNumResidues()}")
     
     params = {}
-    params["coordinates_output_file"] = f"outputs/{slurm_id}{prefix}coordinates.pdb" 
-    params["state_output_file"]       = f"outputs/{slurm_id}{prefix}state.csv"
+    params["coordinates_output_file"] = f"{output_dir}{slurm_id}{prefix}coordinates.pdb" 
+    params["state_output_file"]       = f"{output_dir}{slurm_id}{prefix}state.csv"
 
     ##############################
     # setup and run simulation
