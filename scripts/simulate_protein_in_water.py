@@ -172,7 +172,7 @@ if __name__=="__main__":
 
     args = parser.parse_args()
     pdb_file    = args.pdb_file
-    pdb_dir     = args.pdb_dir
+    input_dir   = args.input_dir
     output_dir  = args.output_dir
     prefix      = args.prefix
     slurm_id    = args.slurm_id
@@ -195,9 +195,9 @@ if __name__=="__main__":
     logging.info(f"Job ID was {slurm_id}")
     logging.info(f"n CPU cores = {os.cpu_count()}")
     
-    if pdb_dir[-1] == "/":
-        pdb_dir = pdb_dir[:-1]
-    pdb_fpath = pdb_dir + "/" + pdb_file.split("/")[-1]
+    if input_dir[-1] == "/":
+        input_dir = input_dir[:-1]
+    pdb_fpath = input_dir + "/" + pdb_file.split("/")[-1]
 
     if output_dir[-1] != "/":
         output_dir += "/"
