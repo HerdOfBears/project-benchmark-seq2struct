@@ -169,7 +169,6 @@ if __name__=="__main__":
     parser.add_argument("--prefix",     default="", type=str, required=False, help="prefix for output files")
     parser.add_argument("--device",     default="cpu", type=str,choices=["cpu","cuda"], required=False, help="device to run on")
     parser.add_argument("--slurm_id",   default="", type=str, required=False, help="slurm id (for logging)")
-    parser.add_argument
 
     args = parser.parse_args()
     pdb_file    = args.pdb_file
