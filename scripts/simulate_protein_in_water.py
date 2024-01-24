@@ -127,7 +127,8 @@ def run_simulation(pdb, params=None):
         for atom in pdb.topology.atoms():
             if atom.name == 'CA':
                 restraint.addParticle(atom.index, pdb.positions[atom.index])
-
+                
+        simulation.context.reinitialize(preserveState=True) # reinitialize context with additional force
 
     ##############
     # run NVT equilibriation
