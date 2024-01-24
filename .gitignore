@@ -5,5 +5,8 @@ _build/
 auto_examples/
 gen_api/
 
+# don't track the job output files. sometimes there are lots of them
+slurm*
+
 # don't track the virtual environment, as it might become big
 venv/
