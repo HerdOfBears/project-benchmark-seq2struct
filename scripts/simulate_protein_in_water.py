@@ -142,7 +142,7 @@ def run_simulation(pdb, params=None):
     system.addForce(
         MonteCarloBarostat(1*bar, temperature*kelvin)
     )
-    simulation.context.reinitialize(preserveState=True)
+    simulation.context.reinitialize(preserveState=True) # reinitialize context with additional force
 
     simulation.step(total_n_equilibriation_steps)
 
@@ -152,6 +152,7 @@ def run_simulation(pdb, params=None):
     if restrain_backbone:
         logging.info("Removing backbone restraint...")
         system.removeForce(restraint_force_system_idx)
+        simulation.context.reinitialize(preserveState=True) # reinitialize context so that restraint force is gone
     
     ##############
     # run production
@@ -163,11 +164,12 @@ if __name__=="__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--pdb_file', type=str, required=True, help='PDB file to simulate.')
-    parser.add_argument('--pdb_dir',  type=str, required=True, help='directory containing pdb file(s).')
+    parser.add_argument('--input_dir',  type=str, required=True, help='directory containing pdb file(s).')
     parser.add_argument("--output_dir", default="outputs", type=str, required=False, help="output directory")
     parser.add_argument("--prefix",     default="", type=str, required=False, help="prefix for output files")
     parser.add_argument("--device",     default="cpu", type=str,choices=["cpu","cuda"], required=False, help="device to run on")
     parser.add_argument("--slurm_id",   default="", type=str, required=False, help="slurm id (for logging)")
+    parser.add_argument
 
     args = parser.parse_args()
     pdb_file    = args.pdb_file
