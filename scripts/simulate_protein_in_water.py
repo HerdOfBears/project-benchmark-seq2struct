@@ -143,7 +143,7 @@ def run_simulation(pdb, params=None):
     ##############
     if restrain_backbone:
         logging.info("Restrain protein backbone...")
-        add_backbone_posres(system, pdb.positions, pdb.topology.atoms(), 100.0, periodic_boundaries=using_pbc)
+        add_backbone_posres(system, pdb, 100.0, periodic_boundaries=using_pbc)
         # if using_pbc:
         #     restraint = CustomExternalForce('k*periodicdistance(x, y, z, x0, y0, z0)^2')
         # else:
