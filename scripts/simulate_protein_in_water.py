@@ -11,6 +11,34 @@ import argparse
 import datetime
 import sys
 
+# Function to add backbone position restraints
+def add_backbone_posres(system, pdb, restraint_force, periodic_boundaries=True):
+    if periodic_boundaries:
+        force = CustomExternalForce("k*periodicdistance(x, y, z, x0, y0, z0)^2")
+    else:
+        force = CustomExternalForce('k*((x-x0)^2+(y-y0)^2+(z-z0)^2)')        
+
+    force_amount = restraint_force * kilocalories_per_mole/angstroms**2
+    force.addGlobalParameter("k", force_amount)
+    force.addPerParticleParameter("x0")
+    force.addPerParticleParameter("y0")
+    force.addPerParticleParameter("z0")
+    # for i, (atom_crd, atom) in enumerate(zip(positions, atoms)):
+    #     if atom.name in  ('CA'):#, 'C', 'N'):
+    #         force.addParticle(i, atom_crd.value_in_unit(nanometers))
+
+    # restrain all Calpha atoms
+    for atom in pdb.topology.atoms():
+        if atom.name in ('CA', 'C', 'N'): # all heavy atoms
+        # if atom.name == 'CA':
+            force.addParticle(atom.index, pdb.positions[atom.index])
+
+    #   posres_sys = deepcopy(system)
+    # posres_sys.addForce(force)
+
+    system.addForce(force)
+    
+
 def run_simulation(pdb, params=None):
     """
     requires a PDBFile object
@@ -34,7 +62,7 @@ def run_simulation(pdb, params=None):
         coordinates_output_file = params['coordinates_output_file']
         state_output_file       = params['state_output_file']
 
-    using_pbc = False # use periodic boundary conditions
+    using_pbc = True # use periodic boundary conditions
     restrain_backbone = True # restrain the backbone during NVT and NPT equilibration, but not during production
 
     total_n_equilibriation_steps = int(total_equilibriation_time / (step_size*picoseconds) ) # 100 ps
@@ -102,9 +130,11 @@ def run_simulation(pdb, params=None):
             state_output_file, 
             report_every, 
             step=True, 
-            potentialEnergy=True, 
+            potentialEnergy=True,
+            kineticEnergy=True, 
             temperature=True,
-            volume=True
+            volume=True,
+            density=True
         )
     )
 
@@ -113,20 +143,21 @@ def run_simulation(pdb, params=None):
     ##############
     if restrain_backbone:
         logging.info("Restrain protein backbone...")
-        if using_pbc:
-            restraint = CustomExternalForce('k*periodicdistance(x, y, z, x0, y0, z0)^2')
-        else:
-            restraint = CustomExternalForce('k*((x-x0)^2+(y-y0)^2+(z-z0)^2)')
-        restraint_force_system_idx = system.addForce(restraint)
-        restraint.addGlobalParameter('k', 100.0*kilojoules_per_mole/nanometer)
-        restraint.addPerParticleParameter('x0')
-        restraint.addPerParticleParameter('y0')
-        restraint.addPerParticleParameter('z0')
+        add_backbone_posres(system, pdb.positions, pdb.topology.atoms(), 100.0, periodic_boundaries=using_pbc)
+        # if using_pbc:
+        #     restraint = CustomExternalForce('k*periodicdistance(x, y, z, x0, y0, z0)^2')
+        # else:
+        #     restraint = CustomExternalForce('k*((x-x0)^2+(y-y0)^2+(z-z0)^2)')
+        # restraint_force_system_idx = system.addForce(restraint)
+        # restraint.addGlobalParameter('k', 100.0*kilojoules_per_mole/nanometer)
+        # restraint.addPerParticleParameter('x0')
+        # restraint.addPerParticleParameter('y0')
+        # restraint.addPerParticleParameter('z0')
 
-        # restrain all Calpha atoms
-        for atom in pdb.topology.atoms():
-            if atom.name == 'CA':
-                restraint.addParticle(atom.index, pdb.positions[atom.index])
+        # # restrain all Calpha atoms
+        # for atom in pdb.topology.atoms():
+        #     if atom.name == 'CA':
+        #         restraint.addParticle(atom.index, pdb.positions[atom.index])
                 
         simulation.context.reinitialize(preserveState=True) # reinitialize context with additional force
 
@@ -152,8 +183,9 @@ def run_simulation(pdb, params=None):
     ##############
     if restrain_backbone:
         logging.info("Removing backbone restraint...")
-        system.removeForce(restraint_force_system_idx)
-        simulation.context.reinitialize(preserveState=True) # reinitialize context so that restraint force is gone
+        simulation.context.setParameter('k', 0.0) # remove restraint
+        # system.removeForce(restraint_force_system_idx)
+        # simulation.context.reinitialize(preserveState=True) # reinitialize context so that restraint force is gone
     
     ##############
     # run production
