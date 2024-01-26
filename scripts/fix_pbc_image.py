@@ -36,7 +36,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output",
         type=str,
-        help="Output trajectory file."
+        help="Output file name for new trajectory."
     )
 
     args = parser.parse_args()
