@@ -1,0 +1,4 @@
+python scripts/simulate_protein_in_water.py --input_dir outputs/esmfold/ --pdb_file starPep_00218_esmfold_prediction_pdbfixed.pdb --output_dir outputs/gnu_test/ --slurm_id $SLURM_JOB_ID --prefix gnu_test1
+python scripts/simulate_protein_in_water.py --input_dir outputs/esmfold/ --pdb_file starPep_43458_esmfold_prediction_pdbfixed.pdb --output_dir outputs/gnu_test/ --slurm_id $SLURM_JOB_ID --prefix gnu_test2
+python scripts/simulate_protein_in_water.py --input_dir outputs/esmfold/ --pdb_file starPep_12300_esmfold_prediction_pdbfixed.pdb --output_dir outputs/gnu_test/ --slurm_id $SLURM_JOB_ID --prefix gnu_test3
+python scripts/simulate_protein_in_water.py --input_dir outputs/esmfold/ --pdb_file starPep_09923_esmfold_prediction_pdbfixed.pdb --output_dir outputs/gnu_test/ --slurm_id $SLURM_JOB_ID --prefix gnu_test4
