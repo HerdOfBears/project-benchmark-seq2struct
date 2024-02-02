@@ -43,7 +43,7 @@ def run_simulation(pdb, params=None):
     """
     requires a PDBFile object
     """
-    total_simulation_time = 1*nanoseconds # production run time
+    total_simulation_time = 10*nanoseconds # production run time
     total_equilibriation_time = 100*picoseconds # equilibriation run time
     temperature = 300 # kelvin
     step_size = 0.002 # of a picosecond
@@ -225,7 +225,7 @@ if __name__=="__main__":
         datefmt='%H:%M:%S',
         level=logging.INFO
     )
-    logging.info(f"Job ID was {slurm_id}")
+    logging.info(f"Job ID was {slurm_id}===========================")
     logging.info(f"n CPU cores = {os.cpu_count()}")
     
     if input_dir[-1] == "/":
@@ -240,12 +240,14 @@ if __name__=="__main__":
     
     pdb = PDBFile(pdb_fpath)
 
+    starpep_id = "_".join(pdb_file.split("/")[-1].split("_")[:2]) + "_"
+
     logging.info(f"using pdb file: {pdb_file}")
     logging.info(f"num residues in pdb = {pdb.topology.getNumResidues()}")
     
     params = {}
-    params["coordinates_output_file"] = f"{output_dir}{slurm_id}{prefix}coordinates.pdb" 
-    params["state_output_file"]       = f"{output_dir}{slurm_id}{prefix}state.csv"
+    params["coordinates_output_file"] = f"{output_dir}{starpep_id}{slurm_id}{prefix}coordinates.pdb" 
+    params["state_output_file"]       = f"{output_dir}{starpep_id}{slurm_id}{prefix}state.csv"
 
     ##############################
     # setup and run simulation

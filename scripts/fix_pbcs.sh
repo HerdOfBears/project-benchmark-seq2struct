@@ -11,9 +11,9 @@
 
 # load modules/venv
 source venv/bin/activate
-module load StdEnv/2020 cuda/11.4 gcc/9.3.0 openmpi/4.0.3
-module load openmm/8.0.0
+#module load StdEnv/2020 cuda/11.4 gcc/9.3.0 openmpi/4.0.3
+#module load openmm/8.0.0
 
 # "outputs/" is deep learning model outputs, but MD sim inputs
-python scripts/fix_pbc_image.py --input --output
+python scripts/fix_pbc_image.py --input outputs/gl13k/24866129_barrel10ns_coords_proteinsOnly.pdb --output outputs/gl13k/24866129_barrel10ns_coords_proteinsOnly_pbcFixed.pdb
 echo Done.
