@@ -3,6 +3,7 @@ from openmm import *
 from openmm.unit import *
 from pdbfixer import PDBFixer
 from sys import stdout
+from pepstructure.helpers import make_dir_for_starpepid
 
 import time
 import os
@@ -23,18 +24,11 @@ def add_backbone_posres(system, pdb, restraint_force, periodic_boundaries=True):
     force.addPerParticleParameter("x0")
     force.addPerParticleParameter("y0")
     force.addPerParticleParameter("z0")
-    # for i, (atom_crd, atom) in enumerate(zip(positions, atoms)):
-    #     if atom.name in  ('CA'):#, 'C', 'N'):
-    #         force.addParticle(i, atom_crd.value_in_unit(nanometers))
 
     # restrain all Calpha atoms
     for atom in pdb.topology.atoms():
         if atom.name in ('CA', 'C', 'N'): # all heavy atoms
-        # if atom.name == 'CA':
             force.addParticle(atom.index, pdb.positions[atom.index])
-
-    #   posres_sys = deepcopy(system)
-    # posres_sys.addForce(force)
 
     system.addForce(force)
     
@@ -86,11 +80,9 @@ def run_simulation(pdb, params=None):
     residues = modeller.addHydrogens(forcefield)
 
     ##############
-    # add solvent
+    # add solvent (neutralizes the system)
     ##############
-    # t0 = time.time()
     modeller.addSolvent(forcefield, padding=1.0*nanometer)
-    # print(f"took = {round(time.time() - t0, 4)}s")
 
     ##############
     # setup system and integrator
@@ -131,7 +123,6 @@ def run_simulation(pdb, params=None):
             report_every, 
             step=True, 
             potentialEnergy=True,
-            kineticEnergy=True, 
             temperature=True,
             volume=True,
             density=True
@@ -143,22 +134,7 @@ def run_simulation(pdb, params=None):
     ##############
     if restrain_backbone:
         logging.info("Restrain protein backbone...")
-        add_backbone_posres(system, pdb, 100.0, periodic_boundaries=using_pbc)
-        # if using_pbc:
-        #     restraint = CustomExternalForce('k*periodicdistance(x, y, z, x0, y0, z0)^2')
-        # else:
-        #     restraint = CustomExternalForce('k*((x-x0)^2+(y-y0)^2+(z-z0)^2)')
-        # restraint_force_system_idx = system.addForce(restraint)
-        # restraint.addGlobalParameter('k', 100.0*kilojoules_per_mole/nanometer)
-        # restraint.addPerParticleParameter('x0')
-        # restraint.addPerParticleParameter('y0')
-        # restraint.addPerParticleParameter('z0')
-
-        # # restrain all Calpha atoms
-        # for atom in pdb.topology.atoms():
-        #     if atom.name == 'CA':
-        #         restraint.addParticle(atom.index, pdb.positions[atom.index])
-                
+        add_backbone_posres(system, pdb, 100.0, periodic_boundaries=using_pbc)                
         simulation.context.reinitialize(preserveState=True) # reinitialize context with additional force
 
     ##############
@@ -184,8 +160,6 @@ def run_simulation(pdb, params=None):
     if restrain_backbone:
         logging.info("Removing backbone restraint...")
         simulation.context.setParameter('k', 0.0) # remove restraint
-        # system.removeForce(restraint_force_system_idx)
-        # simulation.context.reinitialize(preserveState=True) # reinitialize context so that restraint force is gone
     
     ##############
     # run production
@@ -216,31 +190,28 @@ if __name__=="__main__":
     if slurm_id != "":
         slurm_id += "_"
 
-    today = datetime.datetime.now()
-    logfilename = f"{slurm_id}{prefix}sim_protein_in_water.log"
-    logging.basicConfig(
-        filename="logs/"+logfilename,
-        filemode='a',
-        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-        datefmt='%H:%M:%S',
-        level=logging.INFO
-    )
-    logging.info(f"Job ID was {slurm_id}===========================")
-    logging.info(f"n CPU cores = {os.cpu_count()}")
     
     if input_dir[-1] == "/":
         input_dir = input_dir[:-1]
     pdb_fpath = input_dir + "/" + pdb_file.split("/")[-1]
 
-    if output_dir[-1] != "/":
-        output_dir += "/"
-    if not os.path.exists(output_dir):
-        raise Exception(f"output directory {output_dir} does not exist")
+    starpep_id = "_".join(pdb_file.split("/")[-1].split("_")[:2]) + "_"
+    output_dir = make_dir_for_starpepid(starpep_id.strip("_"), input_dir)
+
+    today = datetime.datetime.now()
+    logfilename = f"{starpep_id}{slurm_id}{prefix}sim.log"
+    logging.basicConfig(
+        filename=output_dir+logfilename,
+        filemode='a',
+        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+        datefmt='%H:%M:%S',
+        level=logging.INFO
+    )
+    logging.info(f"=========Job ID was {slurm_id}============")
+    logging.info(f"n CPU cores = {os.cpu_count()}")
     logging.info(f"output directory = {output_dir}")
     
     pdb = PDBFile(pdb_fpath)
-
-    starpep_id = "_".join(pdb_file.split("/")[-1].split("_")[:2]) + "_"
 
     logging.info(f"using pdb file: {pdb_file}")
     logging.info(f"num residues in pdb = {pdb.topology.getNumResidues()}")
@@ -252,7 +223,7 @@ if __name__=="__main__":
     ##############################
     # setup and run simulation
     ##############################
-    logging.info(f"Running simulation on {pdb_file}")
     t0 = time.time()
     run_simulation(pdb, params=params)
     logging.info(f"Simulation took {round(time.time() - t0, 4)}s")
+    os.touch(output_dir + "simulation_complete.txt")
