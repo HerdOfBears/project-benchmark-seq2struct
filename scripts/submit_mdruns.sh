@@ -2,8 +2,8 @@
 #SBATCH --job-name=esmfold_predns_mdruns
 #SBATCH --account=ctb-rmansbac
 #SBATCH --time=105:00:00
-#SBATCH --nodes=7
-#SBATCH --gpus-per-node=4        # 7 nodes, 4 GPUs each, 28 total
+#SBATCH --nodes=8
+#SBATCH --gpus-per-node=4        # 8 nodes, 4 GPUs each, 32 total
 #SBATCH --mem=30G                # mem per node
 #SBATCH --mail-type=begin        # send email when job begins
 #SBATCH --mail-type=end          # send email when job ends
