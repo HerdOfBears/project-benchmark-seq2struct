@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --job-name=esmfold_predns_mdruns
+#SBATCH --job-name=small_test_mdruns
 #SBATCH --account=ctb-rmansbac
-#SBATCH --time=4-10:00:00
-#SBATCH --nodes=6
+#SBATCH --time=0-01:00:00
+#SBATCH --nodes=2
 #SBATCH --gpus-per-node=4        # 6 nodes, 4 GPUs each, 24 total
-#SBATCH --mem=30G                # mem per node
+#SBATCH --mem=15G                # mem per node
 #SBATCH --mail-type=begin        # send email when job begins
 #SBATCH --mail-type=end          # send email when job ends
 #SBATCH --mail-user=jyler.menard@mail.concordia.ca
