@@ -208,8 +208,12 @@ if __name__=="__main__":
         level=logging.INFO
     )
     logging.info(f"=========Job ID was {slurm_id}============")
-    logging.info(f"n CPU cores = {os.cpu_count()}")
     logging.info(f"output directory = {output_dir}")
+    
+    # check if simulation already complete
+    if os.path.exists(output_dir + "simulation_complete.txt"):
+        logging.info("Simulation already complete. Exiting...")
+        sys.exit(0)
     
     pdb = PDBFile(pdb_fpath)
 
