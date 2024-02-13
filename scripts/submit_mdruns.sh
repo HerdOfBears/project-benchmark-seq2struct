@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=esmfold_predns_mdruns
 #SBATCH --account=ctb-rmansbac
-#SBATCH --time=105:00:00
+#SBATCH --time=4-10:00:00
 #SBATCH --nodes=6
 #SBATCH --gpus-per-node=4        # 6 nodes, 4 GPUs each, 24 total
 #SBATCH --mem=30G                # mem per node
@@ -11,18 +11,20 @@
 
 # Assumes running from project-benchmark-seq2struct directory
 
+pwd
+WDIR=$(pwd)
+JOBS_PER_NODE=4 # 4 GPUs per node
+
 # load modules/venv
-source venv/bin/activate
+source $WDIR"/venv/bin/activate"
 module load StdEnv/2020 cuda/11.4 gcc/9.3.0 openmpi/4.0.3
 module load openmm/8.0.0
 
 scontrol show hostname > ./node_list_${SLURM_JOB_ID} # save node list for parallel
 
-pwd
-WDIR=$(pwd)
 # "outputs/" is deep learning model outputs, but MD sim inputs
 start=`date +%s.%N` 
-parallel -j 24 \
+parallel -j $JOBS_PER_NODE \
         --joblog parallel_test.log \
         --sshloginfile $WDIR/node_list_${SLURM_JOB_ID} \
         --sshdelay 30 \
