@@ -3,7 +3,7 @@ from openmm import *
 from openmm.unit import *
 from pdbfixer import PDBFixer
 from sys import stdout
-from pepstructure.helpers import make_dir_for_starpepid
+from ..pepstructure.helpers import make_dir_for_starpepid
 
 import time
 import os
