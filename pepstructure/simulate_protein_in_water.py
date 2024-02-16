@@ -230,4 +230,4 @@ if __name__=="__main__":
     t0 = time.time()
     run_simulation(pdb, params=params)
     logging.info(f"Simulation took {round(time.time() - t0, 4)}s")
-    os.touch(output_dir + "simulation_complete.txt")
+    os.mknod(output_dir + "simulation_complete.txt")
