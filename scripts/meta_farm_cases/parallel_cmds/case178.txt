@@ -1,4 +1,4 @@
-python pepstructure/simulate_protein_in_water.py --input_dir outputs/esmfold/ --pdb_file starPep_starPep_01027_esmfold_prediction_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
-python pepstructure/simulate_protein_in_water.py --input_dir outputs/esmfold/ --pdb_file starPep_starPep_01028_esmfold_prediction_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
-python pepstructure/simulate_protein_in_water.py --input_dir outputs/esmfold/ --pdb_file starPep_starPep_01029_esmfold_prediction_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
-python pepstructure/simulate_protein_in_water.py --input_dir outputs/esmfold/ --pdb_file starPep_starPep_01030_esmfold_prediction_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
+python pepstructure/simulate_protein_in_water.py --input_dir outputs/esmfold/ --pdb_file starPep_01027_esmfold_prediction_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
+python pepstructure/simulate_protein_in_water.py --input_dir outputs/esmfold/ --pdb_file starPep_01028_esmfold_prediction_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
+python pepstructure/simulate_protein_in_water.py --input_dir outputs/esmfold/ --pdb_file starPep_01029_esmfold_prediction_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
+python pepstructure/simulate_protein_in_water.py --input_dir outputs/esmfold/ --pdb_file starPep_01030_esmfold_prediction_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
