@@ -1,0 +1,4 @@
+python pepstructure/simulate_protein_in_water.py --input_dir outputs/omegafold/ --pdb_file starPep_03987_omegafold_prediction_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
+python pepstructure/simulate_protein_in_water.py --input_dir outputs/omegafold/ --pdb_file starPep_05488_omegafold_prediction_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
+python pepstructure/simulate_protein_in_water.py --input_dir outputs/omegafold/ --pdb_file starPep_05884_omegafold_prediction_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
+python pepstructure/simulate_protein_in_water.py --input_dir outputs/omegafold/ --pdb_file starPep_10279_omegafold_prediction_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
