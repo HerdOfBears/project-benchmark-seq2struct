@@ -1,4 +1,6 @@
+biopython==1.81+computecanada
 certifi==2023.7.22+computecanada
+cftime==1.6.2+computecanada
 charset-normalizer==3.2.0+computecanada
 DLLogger==1.0.0+computecanada
 filelock==3.12.4+computecanada
@@ -8,10 +10,14 @@ idna==3.4+computecanada
 Jinja2==3.1.2+computecanada
 MarkupSafe==2.1.3+computecanada
 mpmath==1.3.0+computecanada
+netCDF4==1.6.4+computecanada
 networkx==3.2.1+computecanada
 numpy==1.25.2+computecanada
 openfold==1.0.0
 packaging==23.2+computecanada
+parmed==3.4.3+computecanada
+pepstructure @ file:///lustre06/project/6068955/jmenard/project-benchmark-seq2struct/dist/pepstructure-0.1.dev0-py2.py3-none-any.whl
+pymol==2.5.0+computecanada
 PyYAML==6.0.1+computecanada
 regex==2023.8.8+computecanada
 requests==2.31.0+computecanada
