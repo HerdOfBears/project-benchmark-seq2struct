@@ -11,4 +11,4 @@ module load StdEnv/2020 gcc/9.3.0 openmpi/4.0.3
 module load openmm/8.0.0
 
 # run script
-python scripts/fix_pdb_files.py --pdb_dir outputs/omegafold/
+python scripts/fix_pdb_files.py --pdb_dir outputs/pepfold/
