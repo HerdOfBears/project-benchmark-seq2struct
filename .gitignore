@@ -10,3 +10,9 @@ slurm*
 
 # don't track the virtual environment, as it might become big
 venv/
+
+logs/
+*.tar.gz
+outputs/*/*/
+*mdrun_farm
+outputs/
