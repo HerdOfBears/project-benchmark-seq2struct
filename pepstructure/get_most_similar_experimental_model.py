@@ -5,6 +5,7 @@ from MDAnalysis.analysis import rms
 
 import os
 import argparse
+import time
 
 def compute_rmsd(uni1, uni2, sel="backbone"):
     """
@@ -73,11 +74,15 @@ def main():
         if os.path.isdir(input_dir + directory):
             starpep_directories.append(directory)
 
+    t0 = time.time()
     best_model_for_starpep = {}
-    for starpep_dir in starpep_directories:
+    for i,starpep_dir in enumerate(starpep_directories):
+        if i%100==0:
+            print(f"Processed {i}/{len(starpep_directories)}")
         best_structure_mean, best_structure_median = get_model_most_similar_to_others(input_dir + starpep_dir)
         best_model_for_starpep[starpep_dir] = best_structure_mean
-
+    print(f"Time: {time.time()-t0}")
+    
     with open(input_dir+"best_model_for_starpep.txt", 'w') as f:
         f.write("starpep_id, best_model\n")
         for starpep_id, best_model in best_model_for_starpep.items():
