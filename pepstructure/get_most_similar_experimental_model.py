@@ -41,6 +41,11 @@ def get_model_most_similar_to_others(starPep_dir):
     for file in os.listdir(best_structure_dir):
         if file.startswith("model"):
             models.append(file)
+        else:
+            pdb_file = file
+    
+    if len(models) < 2:
+        return pdb_file, pdb_file
     
     rmsd_matrix = np.zeros((len(models), len(models)))
     for i, model1 in enumerate(models):
@@ -71,6 +76,7 @@ def main():
 
     starpep_directories = []
     for directory in os.listdir(input_dir):
+        print(input_dir + directory)
         if os.path.isdir(input_dir + directory):
             starpep_directories.append(directory)
 
