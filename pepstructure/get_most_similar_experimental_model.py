@@ -51,8 +51,10 @@ def get_model_most_similar_to_others(starPep_dir):
             rmsd = compute_rmsd(uni1, uni2)
             rmsd_matrix[i, j] = rmsd
     
-    most_similar_model = np.argmin(np.mean(rmsd_matrix, axis=1))
-    return models[most_similar_model]
+    most_similar_model_mean   = np.argmin(np.mean(  rmsd_matrix, axis=1))
+    most_similar_model_median = np.argmin(np.median(rmsd_matrix, axis=1))
+
+    return models[most_similar_model_mean], models[most_similar_model_median]
 
 
 def main():
@@ -74,8 +76,8 @@ def main():
         
     for starpep_dir in starpep_directories:
         print(starpep_dir)
-        best_structure = get_model_most_similar_to_others(input_dir + starpep_dir)
-        print(best_structure)
+        best_structure_mean, best_structure_median = get_model_most_similar_to_others(input_dir + starpep_dir)
+        print(best_structure_mean, best_structure_median)
         print("\n")
         break
 
