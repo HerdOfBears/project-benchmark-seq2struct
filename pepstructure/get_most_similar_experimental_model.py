@@ -82,11 +82,11 @@ def main():
         best_structure_mean, best_structure_median = get_model_most_similar_to_others(input_dir + starpep_dir)
         best_model_for_starpep[starpep_dir] = best_structure_mean
     print(f"Time: {time.time()-t0}")
-    
+
     with open(input_dir+"best_model_for_starpep.txt", 'w') as f:
         f.write("starpep_id, best_model\n")
         for starpep_id, best_model in best_model_for_starpep.items():
-            f.write(f"{starpep_id}, {best_model}\n"
+            f.write(f"{starpep_id}, {best_model}\n")
 
 if __name__ == "__main__":
     main()
