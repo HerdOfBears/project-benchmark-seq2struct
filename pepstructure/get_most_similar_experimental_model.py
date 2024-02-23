@@ -37,6 +37,9 @@ def get_model_most_similar_to_others(starPep_dir):
     else:
         best_structure_dir = starPep_dir + "Best_Structure/"
     
+    if not os.path.exists(best_structure_dir):
+        return None, None
+    
     models = []
     for file in os.listdir(best_structure_dir):
         if file.startswith("model"):
@@ -86,6 +89,8 @@ def main():
         if i%100==0:
             print(f"Processed {i}/{len(starpep_directories)}")
         best_structure_mean, best_structure_median = get_model_most_similar_to_others(input_dir + starpep_dir)
+        if best_structure_mean is None:
+            best_structure_mean = np.nan
         best_model_for_starpep[starpep_dir] = best_structure_mean
     print(f"Time: {time.time()-t0}")
 
