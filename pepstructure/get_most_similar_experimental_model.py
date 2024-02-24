@@ -26,8 +26,10 @@ def compute_rmsd(uni1, uni2, sel="backbone"):
         The RMSD between the two universes.
     """
     # align the two structures
-    ref = uni1.select_atoms(sel)
+    ref    = uni1.select_atoms(sel)
     mobile = uni2.select_atoms(sel)
+    if len(ref) != len(mobile):
+        raise ValueError("The number of atoms in the two selections is different.")
     rmsd = rms.rmsd(mobile.positions, ref.positions)
     return rmsd
 
@@ -42,13 +44,11 @@ def get_model_most_similar_to_others(starPep_dir):
     
     models = []
     for file in os.listdir(best_structure_dir):
-        if file.startswith("model"):
+        if file.endswith("_pdbfixed.pdb"):
             models.append(file)
-        else:
-            pdb_file = file
     
     if len(models) < 2:
-        return pdb_file, pdb_file
+        return file, file
     
     rmsd_matrix = np.zeros((len(models), len(models)))
     for i, model1 in enumerate(models):
@@ -57,6 +57,9 @@ def get_model_most_similar_to_others(starPep_dir):
                 continue
             uni1 = mda.Universe(best_structure_dir + model1)
             uni2 = mda.Universe(best_structure_dir + model2)
+            # check if the two structures have the same number of atoms
+            if len(uni1.atoms) != len(uni2.atoms):
+                raise ValueError(f"{starPep_dir}: The number of atoms in {model1} and {model2} is different.")
             rmsd = compute_rmsd(uni1, uni2)
             rmsd_matrix[i, j] = rmsd
     
@@ -70,32 +73,46 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--input_dir", type=str, required=True)
+    parser.add_argument("--parallel", type=str, required=False, choices=["y", "n"], help="Run in parallel or not.")
 
     args = parser.parse_args()
     input_dir = args.input_dir
+    parallel = args.parallel
 
     if input_dir[-1] != "/":
         input_dir += "/"
 
     starpep_directories = []
-    for directory in os.listdir(input_dir):
-        print(input_dir + directory)
-        if os.path.isdir(input_dir + directory):
-            starpep_directories.append(directory)
+    if parallel=="y":
+        starpep_directories.append(input_dir)
+    else:
+        for directory in os.listdir(input_dir):
+            if os.path.isdir(input_dir + directory):
+                starpep_directories.append(directory)
 
-    t0 = time.time()
+    # t0 = time.time()
     best_model_for_starpep = {}
     for i,starpep_dir in enumerate(starpep_directories):
-        if i%100==0:
-            print(f"Processed {i}/{len(starpep_directories)}")
+        # if i%100==0:
+        #     print(f"Processed {i}/{len(starpep_directories)}")
+        print(f"processing {starpep_dir}")
         best_structure_mean, best_structure_median = get_model_most_similar_to_others(input_dir + starpep_dir)
         if best_structure_mean is None:
-            best_structure_mean = np.nan
+            best_structure_mean = "None"
         best_model_for_starpep[starpep_dir] = best_structure_mean
-    print(f"Time: {time.time()-t0}")
+    # print(f"Time: {time.time()-t0}")
 
-    with open(input_dir+"best_model_for_starpep.txt", 'w') as f:
-        f.write("starpep_id, best_model\n")
+    header_exists = False
+    with open("best_model_per_starpep.txt", 'a') as f:
+        try: 
+            header = f.readline()
+            if "starpep_id, best_model" in header:
+                header_exists = True
+        except:
+            pass
+        if not header_exists:
+            f.write("starpep_id, best_model\n")
+
         for starpep_id, best_model in best_model_for_starpep.items():
             f.write(f"{starpep_id}, {best_model}\n")
 
