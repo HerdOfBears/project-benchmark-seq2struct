@@ -105,16 +105,15 @@ def main():
         best_model_for_starpep[starpep_dir] = best_structure_mean
     # print(f"Time: {time.time()-t0}")
 
-    header_exists = False
     with open("best_model_per_starpep.txt", 'a') as f:
-        try: 
-            header = f.readline()
-            if "starpep_id, best_model" in header:
-                header_exists = True
-        except:
-            pass
-        if not header_exists:
-            f.write("starpep_id, best_model\n")
+        # try: 
+        #     header = f.readline()
+        #     if "starpep_id, best_model" in header:
+        #         header_exists = True
+        # except:
+        #     pass
+        # if not header_exists:
+        #     f.write("starpep_id, best_model\n")
 
         for starpep_id, best_model in best_model_for_starpep.items():
             f.write(f"{starpep_id}, {best_model}\n")
