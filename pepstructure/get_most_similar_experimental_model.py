@@ -47,8 +47,10 @@ def get_model_most_similar_to_others(starPep_dir):
         if file.endswith("_pdbfixed.pdb"):
             models.append(file)
     
-    if len(models) < 2:
-        return file, file
+    if len(models) == 1:
+        return models[0], models[0]
+    elif len(models) == 0:
+        return None, None
     
     rmsd_matrix = np.zeros((len(models), len(models)))
     for i, model1 in enumerate(models):
