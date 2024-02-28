@@ -1,0 +1,4 @@
+python pepstructure/simulate_protein_in_water.py --input_dir outputs/experimental/ --pdb_file starPep_42601_model_3_1K36_A_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
+python pepstructure/simulate_protein_in_water.py --input_dir outputs/experimental/ --pdb_file starPep_00161_model_1_2B9K_A_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
+python pepstructure/simulate_protein_in_water.py --input_dir outputs/experimental/ --pdb_file starPep_00538_model_1_1GPT_A_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
+python pepstructure/simulate_protein_in_water.py --input_dir outputs/experimental/ --pdb_file starPep_00585_model_13_1N4N_A_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
