@@ -1,0 +1,4 @@
+python pepstructure/simulate_protein_in_water.py --input_dir outputs/pepfold4/ --pdb_file starPep_01995_pepfold4_prediction_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
+python pepstructure/simulate_protein_in_water.py --input_dir outputs/pepfold4/ --pdb_file starPep_02007_pepfold4_prediction_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
+python pepstructure/simulate_protein_in_water.py --input_dir outputs/pepfold4/ --pdb_file starPep_03071_pepfold4_prediction_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
+python pepstructure/simulate_protein_in_water.py --input_dir outputs/pepfold4/ --pdb_file starPep_03191_pepfold4_prediction_pdbfixed.pdb --slurm_id $SLURM_JOB_ID
