@@ -219,6 +219,7 @@ if __name__=="__main__":
     )
     logging.info(f"=========Job ID was {slurm_id}============")
     logging.info(f"output directory = {output_dir}")
+    logging.info(f"input arguments =\n{vars(args)}")
     
     # check if simulation already complete
     if os.path.exists(output_dir + "simulation_complete.txt"):
