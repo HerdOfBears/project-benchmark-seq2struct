@@ -15,5 +15,5 @@ source venv/bin/activate
 #module load openmm/8.0.0
 
 # "outputs/" is deep learning model outputs, but MD sim inputs
-python scripts/fix_pbc_image.py --input outputs/gl13k/24866129_barrel10ns_coords_proteinsOnly.pdb --output outputs/gl13k/24866129_barrel10ns_coords_proteinsOnly_pbcFixed.pdb
+python scripts/fix_pbc_image.py --input outputs/esmfold/starPep_00385/starPep_00385_esmfold_prediction_coordinates_peptideOnly.pdb --output outputs/esmfold/starPep_00385/starPep_00385_esmfold_predn_coords_peptideOnly_pbcfixed.pdb
 echo Done.

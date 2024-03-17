@@ -47,7 +47,7 @@ def get_starpep_ids_in_dir(input_dir):
     return starpep_ids
 
 def main():
-    mdrun_input_dir = "outputs/experimental/"
+    mdrun_input_dir = "outputs/af2/"
     model_name = mdrun_input_dir.split("/")[1].strip("/")
 
     
