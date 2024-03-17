@@ -230,8 +230,8 @@ if __name__=="__main__":
     logging.info(f"using pdb file: {pdb_file}")
     logging.info(f"num residues in pdb = {pdb.topology.getNumResidues()}")
     
-    energy_threshold=50
-    logging.warning(f"HARD CODED energy_threshold=50")
+    # energy_threshold=50
+    # logging.warning(f"HARD CODED energy_threshold=50")
 
     params = {}
     params["coordinates_output_file"] = f"{output_dir}{starpep_id}{slurm_id}{prefix}coordinates.pdb" 
