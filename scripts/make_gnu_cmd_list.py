@@ -139,8 +139,13 @@ def make_resubmit_cmd_list(input_file):
     mdrun_input_dir = f"outputs/{model_name}"
     farm_name = f"{model_name}_farm_cases" if model_name!="esmfold" else "meta_farm_cases"
 
+    available_starpep_ids = []
     with open(input_file, 'r') as f:
-        available_starpep_ids = f.readlines()
+        lines = f.readlines()
+    # strip newlines and append to available_starpep_ids
+    for line in lines:
+        available_starpep_ids.append(line.strip())
+        
     print(f"N available IDs = {len(available_starpep_ids)}")
     # grab all starpep_ids and their sequences
     starpep_ids_to_seq = {}
