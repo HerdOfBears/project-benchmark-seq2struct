@@ -141,7 +141,7 @@ def make_resubmit_cmd_list(input_file):
 
     with open(input_file, 'r') as f:
         available_starpep_ids = f.readlines()
-    
+    print(f"N available IDs = {len(available_starpep_ids)}")
     # grab all starpep_ids and their sequences
     starpep_ids_to_seq = {}
     is_annotation = True
@@ -158,14 +158,15 @@ def make_resubmit_cmd_list(input_file):
     # sort all starpep_ids by length
     sorted_starpep_ids = sort_starpep_ids_by_length(starpep_ids_to_seq)
     for starpep_id in sorted_starpep_ids:
-        print(f"{starpep_id}: {len(starpep_ids_to_seq[starpep_id])}")
+        pass
+        # print(f"{starpep_id}: {len(starpep_ids_to_seq[starpep_id])}")
 
     # use sorted starpep_ids to sort the available starpep_ids
     sorted_available_starpep_ids = []
     for starpep_id in sorted_starpep_ids:
         if starpep_id in available_starpep_ids:
             sorted_available_starpep_ids.append(starpep_id)    
-
+    print(f"N sorted available IDs = {len(sorted_available_starpep_ids)}")
     # make parallel_cmds_resub dir if it does not exist
     if not os.path.exists(f"scripts/{farm_name}/parallel_cmds_resub"):
         os.makedirs(f"scripts/{farm_name}/parallel_cmds_resub")
