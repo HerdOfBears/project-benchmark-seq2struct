@@ -204,7 +204,7 @@ if __name__=="__main__":
     mdrun_input_dir = args.mdrun_input_dir
     input_file      = args.input_file
 
-    if mdrun_input_dir[0] != "outputs":
+    if mdrun_input_dir.split("/")[0] != "outputs":
         raise ValueError(f"mdrun_input_dir must be in outputs/ directory. Got {mdrun_input_dir}. Is this an error? ")
 
     if input_file:
