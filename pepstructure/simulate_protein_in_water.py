@@ -41,6 +41,7 @@ def run_simulation(pdb, params=None):
     total_equilibriation_time = 100*picoseconds # equilibriation run time
     temperature = 300 # kelvin
     step_size = 0.002 # of a picosecond
+    energy_threshold = None
 
     report_every = 1000 # every X steps
     coordinates_output_file = 'output.pdb'
@@ -55,6 +56,7 @@ def run_simulation(pdb, params=None):
 
         coordinates_output_file = params['coordinates_output_file']
         state_output_file       = params['state_output_file']
+        energy_threshold        = params["energy_threshold"]
 
     using_pbc = True # use periodic boundary conditions
     restrain_backbone = True # restrain the backbone during NVT and NPT equilibration, but not during production
@@ -105,7 +107,10 @@ def run_simulation(pdb, params=None):
     ############## 
     logging.info("Minimizing energy...")
     t0 = time.time()
-    simulation.minimizeEnergy()
+    if energy_threshold is not None:
+        simulation.minimizeEnergy(tolerance=energy_threshold*nanometer)
+    else:
+        simulation.minimizeEnergy()
     logging.info(f"Minimized energy in {round(time.time() - t0, 4)}s")
 
     ##############
@@ -176,6 +181,7 @@ if __name__=="__main__":
     parser.add_argument("--prefix",     default="", type=str, required=False, help="prefix for output files")
     parser.add_argument("--device",     default="cpu", type=str,choices=["cpu","cuda"], required=False, help="device to run on")
     parser.add_argument("--slurm_id",   default="", type=str, required=False, help="slurm id (for logging)")
+    parser.add_argument("--E_threshold",default=None,type=int,required=False, help="energy threshold in kJ/(mole * nm) for minimizeEnergy().")
 
     args = parser.parse_args()
     pdb_file    = args.pdb_file
@@ -183,6 +189,7 @@ if __name__=="__main__":
     output_dir  = args.output_dir
     prefix      = args.prefix
     slurm_id    = args.slurm_id
+    energy_threshold = args.E_threshold
     device      = args.device
     device      = device.upper()
     if prefix != "":
@@ -190,6 +197,9 @@ if __name__=="__main__":
     if slurm_id != "":
         slurm_id += "_"
 
+    if energy_threshold is not None:
+        if energy_threshold <0:
+            raise ValueError(f"E_threshold must be positive integer. Got {energy_threshold}")
     
     if input_dir[-1] == "/":
         input_dir = input_dir[:-1]
@@ -220,10 +230,13 @@ if __name__=="__main__":
     logging.info(f"using pdb file: {pdb_file}")
     logging.info(f"num residues in pdb = {pdb.topology.getNumResidues()}")
     
+    energy_threshold=50
+    logging.warning(f"HARD CODED energy_threshold=50")
+
     params = {}
     params["coordinates_output_file"] = f"{output_dir}{starpep_id}{slurm_id}{prefix}coordinates.pdb" 
     params["state_output_file"]       = f"{output_dir}{starpep_id}{slurm_id}{prefix}state.csv"
-
+    params["energy_threshold"]        = energy_threshold
     ##############################
     # setup and run simulation
     ##############################
