@@ -241,7 +241,33 @@ if __name__=="__main__":
     ##############################
     # setup and run simulation
     ##############################
-    t0 = time.time()
-    run_simulation(pdb, params=params)
-    logging.info(f"Simulation took {round(time.time() - t0, 4)}s")
+
+    # we're gonna try running a simulation, and if it fails, 
+    # we'll try again with a higher energy threshold
+    attempts     = 0
+    max_attempts = 4
+    energy_thresholds=[10, 50, 75, 100, 150]
+    while attempts < max_attempts+1:
+        try:
+            t0 = time.time()
+            run_simulation(pdb, params=params)
+            tf = time.time()
+            attempts = max_attempts+1 # leave while loop
+        except Exception as e:
+            logging.error(f"Caught exception: {e}")
+            attempts += 1
+            logging.info(f"Attempt {attempts} failed. Trying again...")
+            if attempts < max_attempts+1:
+                energy_threshold = energy_thresholds[attempts]
+                logging.info(f"Trying again with energy_threshold={energy_threshold}")
+                params["energy_threshold"] = energy_threshold
+            else:
+                logging.error(f"Failed after {attempts} attempts. Exiting...")
+                sys.exit(1)
+    #openmm.OpenMMException
+    # log starpep_id and energy threshold of successful simulation
+    logging.info(f"Simulation took {round(tf - t0, 4)}s")
     os.mknod(output_dir + "simulation_complete.txt")
+    with open(output_dir + "simulation_complete.txt", 'w') as f:
+        f.write(f"{starpep_id}, {energy_threshold}")
+    logging.info(f"Wrote successful sim energy threshold to {output_dir}simulation_complete.txt")
