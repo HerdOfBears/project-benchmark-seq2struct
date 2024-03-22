@@ -108,7 +108,7 @@ def run_simulation(pdb, params=None):
     logging.info("Minimizing energy...")
     t0 = time.time()
     if energy_threshold is not None:
-        simulation.minimizeEnergy(tolerance=energy_threshold*nanometer)
+        simulation.minimizeEnergy(tolerance=energy_threshold*kilojoule/mole)
     else:
         simulation.minimizeEnergy()
     logging.info(f"Minimized energy in {round(time.time() - t0, 4)}s")
